@@ -1,6 +1,6 @@
 ;窗口对象会直接生成两个默认的mode(changeMode获取)
 ;模式由各插件自行定义(生成+map一并进行)
-class VimDWin {
+class VimDWindow {
     ;主要属性
     /** @type {String} */
     name := ""
@@ -110,7 +110,7 @@ class VimDWin {
         return this.curMode
     }
 
-    ;NOTE 由 VimDWin 对象接收按键并调度
+    ;NOTE 由 VimDWindow 对象接收按键并调度
     ;这里只处理特殊情况
     ;由 _keyIn() 处理后续细节
     ;byScript 非手工按键，而是用脚本触发时，需要传入此参数，如 VimD_WeChat.win.keyIn("F3", "ahk_exe WeChat.exe")

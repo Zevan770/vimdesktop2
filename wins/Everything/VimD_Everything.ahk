@@ -1,7 +1,7 @@
 ﻿vimd_Everything.init()
 class vimd_Everything extends _ET {
 
-    /** @type {VimDWin} */
+    /** @type {VimDWindow} */
     win := ""
 
     static init() {

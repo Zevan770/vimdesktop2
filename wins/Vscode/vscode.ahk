@@ -1,6 +1,6 @@
 #Requires AutoHotkey v2.0
 
-/** @type {VimDWin} */
+/** @type {VimDWindow} */
 ; win := vimd.initWin("vscode", "ahk_exe code.exe")
 TEST_GROUP := "test_group"
 GroupAdd(TEST_GROUP, "ahk_exe code.exe")

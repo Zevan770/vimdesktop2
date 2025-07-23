@@ -2,14 +2,14 @@
     static arrModeName := ["None", "Vim"
     ]
     ;static charSplit := "※" ;分隔各命令
-    /** @type {VimDWin} */
+    /** @type {VimDWindow} */
     static curWin := {} ;记录当前的窗口，用来出错后 init
     static tipLevel := 15
     static tipLevel1 := 16 ;其他辅助显示
 
     /** @type {Logger} */
     static logger := Logger()
-    /** @type {Map<String, VimDWin>} */
+    /** @type {Map<String, VimDWindow>} */
     static wins := Map() ;在 initWin里设置
 
     static __New() {
@@ -26,13 +26,13 @@
      * 
      * @param winName 
      * @param winTitle 
-     * @returns {VimDWin}
+     * @returns {VimDWindow}
      */
     static InitWin(winName, winTitle) {
         ;msgbox(winName . "`n" . json.stringify(this.wins, 4))
         if !this.wins.has(winName)
-            this.wins[winName] := VimDWin(winName)
-        /** @type {VimDWin} */
+            this.wins[winName] := VimDWindow(winName)
+        /** @type {VimDWindow} */
         win := this.wins[winName]
         win.winTitle := winTitle
         return win
@@ -48,7 +48,7 @@
         }
     }
 
-    ;VimDMode.ShowTips
+    ;Mode.ShowTips
     static HideTips() {
         tooltip(, , , VimD.tipLevel)
     }
@@ -82,5 +82,8 @@
 ; }
 
 #include VimDInclude.ahk
-#include VimDWin.ahk
+#include VimDWindow.ahk
+#Include VimDActionManager.ahk
+#Include VimDAction.ahk
+#Include VimDKeySequence.ahk
 #include VimDMode.ahk

@@ -1,9 +1,9 @@
 class VimDMode {
-    /** @type {VimDWin} */
+    /** @type {VimDWindow} */
     win := unset
 
-    /** @type {Map<String, VimDAction>} */
-    actions := Map()
+    /** @type {VimDActionManager} */
+    actionManager := ""
 
     /** @type {VimDAction} */
     tmpAction := ""
@@ -11,8 +11,8 @@ class VimDMode {
     /** @type {Map<String, String>} */
     objTips := Map()
 
-    /** @type {VimDkeySequence} */
-    keySeq := VimDkeySequence()
+    /** @type {VimDKeySeqence} */
+    keySeq := VimDKeySeqence()
 
     /** @type {Func} */
     onBeforeKey := ""
@@ -29,13 +29,13 @@ class VimDMode {
     __new(idx, win, modename := "") {
         this.index := idx
         this.win := win ;标记是哪个窗口的mode
+        this.actionManager := VimDActionManager(this) ; 初始化 actionManager
         if (idx > 1)
             VimD.arrModeName.push(modename != "" ? modename : format("mode{1}", idx))
         else if (modename != "") ;修改内置模式名
             VimD.arrModeName[this.index + 1] := modename
         this.name := this.win.name . "-" . VimD.arrModeName[this.index + 1]
         this.objTips.CaseSense := true
-        this.actions.CaseSense := true
     }
 
     ;脚本运行过程出错，要先运行此命令退出，否则下次按键会因为 keySeq 误判(往往使下一按键无效)
@@ -64,12 +64,12 @@ class VimDMode {
 
         this.keySeq.AddKey(thisHotkey)
 
-        if (!this.actions.Has(this.keySeq.ToString())) {
+        if (!this.actionManager.HasAction(this.keySeq.ToString())) {
             this.init()
             exit
         }
 
-        this.tmpAction := this.actions[this.keySeq.ToString()]
+        this.tmpAction := this.actionManager.GetAction(this.keySeq.ToString())
         if (this.tmpAction.rhs != "") {
             this.Exec(this.tmpAction.rhs, this.win.GetCount(), this.tmpAction.desc)
             this.init()
@@ -80,7 +80,7 @@ class VimDMode {
     }
 
     HandleSpecialKey(thisHotkey) {
-        if (!this.actions.has(thisHotkey)) {
+        if (!this.actionManager.HasAction(thisHotkey)) {
             return false
         }
         if (thisHotkey ~= "^\d$") {
@@ -153,48 +153,8 @@ class VimDMode {
      * @param {String} desc
      * @param {Func} condition
      */
-    MapKey(lhs, rhs := unset, desc := unset, condition := unset) {
-        this._Map(lhs, rhs?, desc?, condition?, "normal")
-    }
-
-    /**
-     * @description 把定义打包为 action 并 map
-     * @param {String} lhs
-     * @param {String|Func} rhs
-     * @param {String} desc
-     * @param {Func} condition
-     * @param {ActionType} type
-     */
-    _Map(lhs, rhs := "", desc := "", condition := "", type := "normal") {
-        /** @type  {VimDkeySequence} */
-        keySeq := VimDkeySequence.Lhs2KeySeq(lhs)
-        /** @type {VimDAction} */
-        action := VimDAction()
-        action.keySeq := keySeq
-        action.rhs := rhs
-        action.type := rhs ? "normal" : "leader"
-        action.desc := IsSet(desc) ? desc : rhs
-        action.type := type
-        action.mode := this
-        action.condition := condition
-
-        leaderKeys := keySeq.GetLeaderKeys()
-        ; 自动为 leaderKeys 定义一个空的 action
-        if (!this.actions.has(leaderKeys.ToString()) && leaderKeys.keys.length) {
-            this._Map(leaderKeys.ToString(), "", leaderKeys.ToString(), , "leader")
-        }
-
-        ; VimD.logger.debug(Objs2Str(action))
-
-        for key in action.keySeq.keys {
-            if (!this.win.registeredHotkeys.has(key)) { ;单键避免重复定义
-                HotIf(ObjBindMethod(this, "HotIfCondition", , condition?))
-                Hotkey(key, ObjBindMethod(this.win, "keyIn"))
-                this.win.registeredHotkeys.Push(key)
-            }
-        }
-
-        this.actions[keySeq.ToString()] := action
+    MapKey(lhs, rhs := unset, desc := unset, condition := (p*) => true) {
+        this.actionManager.MapKey(lhs, rhs, desc, condition)
     }
 
     ;-----------------------------------do__-----------------------------------
@@ -203,7 +163,6 @@ class VimDMode {
 
     ;最终执行的命令
     ;因为 GlobalActionRepeat 调用，所以把 cnt 放参数
-    ;为什么第一个参数不用 action
     Exec(rhs, count, comment := "") {
         ;处理 repeat 和 count
         if (!this.win.isRepeating) {
@@ -331,9 +290,9 @@ class VimDMode {
         return true
     }
 
-    HotIfCondition(thisHotkey, condition := unset) {
+    HotIfCondition(thisHotkey, condition := ((p*) => true)) {
         if (this.win.Active() && this.Active()) {
-            if (IsSet(condition) && Type(%condition%).isFunc()) {
+            if (IsSet(condition) && condition IS Func) {
                 VimD.logger.debug(Format("{1},{2}", condition, thisHotkey))
                 return condition.Call(thisHotkey)
             } else {
@@ -342,139 +301,5 @@ class VimDMode {
         }
         return false
 
-    }
-}
-
-class VimDAction {
-    /**
-     * @description 模式 
-     * @type {VimDMode} 
-     */
-    mode := ""
-
-    /**
-     * @typedef {("normal"|"leader")} ActionType 映射类型
-     */
-
-    /**
-     * @type {ActionType}
-     */
-    type := "normal"
-
-    /**
-     * @description 
-     * @type {VimDkeySequence} 
-     */
-    keySeq := []
-
-    /**
-     * @description 动作 
-     * @type {String|Func} 
-     */
-    rhs := ""
-
-    /**
-     * @description 描述 
-     * @type {String} 
-     */
-    desc := ""
-
-    /**
-     * @description 以此键开头的映射
-     * @type {Map<String, VimDAction>}
-     */
-    mapping := Map()
-
-    /**
-     * @description 条件
-     * @type {Func}
-     */
-    condition := ""
-
-    /**
-     * @description 简短描述
-     * @type {String}
-     */
-
-    shortDesc := ""
-
-}
-
-/**
- * @description 按键序列 
- * 按键的几种形态: 
- */
-class VimDkeySequence {
-
-    static SplitChar := " "
-    /**
-     * @description 按键序列 
-     * @type {Array<String>} 
-     */
-    keys := []
-
-    __New(keys := []) {
-        this.keys := keys
-    }
-
-    /**
-     * @description 将给定的 lhs 转换为按键序列
-     * @param {String} lhs
-     */
-    static Lhs2KeySeq(lhs) {
-        strs := StrSplit(lhs, this.SplitChar)
-        arr := []
-        for _, str in strs {
-            arr.Push(KeyUtil.Lhs2Hot(str))
-        }
-        return VimDkeySequence(arr)
-    }
-
-    ToString() {
-        return this.keys.join(VimDkeySequence.SplitChar)
-    }
-
-    /**
-     * @description 添加按键到序列
-     * @param {String} key
-     */
-    AddKey(key) {
-        this.keys.push(key)
-    }
-
-    GetLeaderKeys() {
-        if (this.keys.length == 0) {
-            return VimDkeySequence()
-        }
-        leaderKeys := this.keys.clone()
-        leaderKeys.Pop()
-        return VimDkeySequence(leaderKeys)
-    }
-
-    GetLastKey() {
-        return this.keys[-1]
-    }
-}
-
-class KeyUtil {
-    /**
-     * @description 将大写字母转换为小写字母前加 + 号
-     * G -> +g
-     */
-    static Lhs2Hot(lhs) {
-        if (lhs ~= "^[A-Z]$") {
-            return "+" . StrLower(lhs)
-        }
-        return lhs
-    }
-
-    /**
-     * 如果是+g，返回 G
-     */
-    static Hot2Visual(hot) {
-        if (hot ~= "^\+[a-z]$") {
-            return StrUpper(substr(hot, -1))
-        }
-        return hot
     }
 }

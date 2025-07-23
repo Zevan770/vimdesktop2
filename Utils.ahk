@@ -23,3 +23,26 @@ Objs2Str(objs*) {
     }
     return result
 }
+
+class KeyUtil {
+    /**
+     * @description 将大写字母转换为小写字母前加 + 号
+     * G -> +g
+     */
+    static Lhs2Hot(lhs) {
+        if (lhs ~= "^[A-Z]$") {
+            return "+" . StrLower(lhs)
+        }
+        return lhs
+    }
+
+    /**
+     * 如果是+g，返回 G
+     */
+    static Hot2Visual(hot) {
+        if (hot ~= "^\+[a-z]$") {
+            return StrUpper(substr(hot, -1))
+        }
+        return hot
+    }
+}
