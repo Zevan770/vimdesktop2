@@ -42,7 +42,7 @@ class VimDMode {
     ;NOTE 执行命令或中途退出才执行
     ;type -1=执行前半段 0=全部执行 1=执行后半段
     init(type := 0) {
-        ;VimD.logger.debug(format("i#{1} {2}:init tp={3} start", A_LineFile,A_LineNumber,tp))
+        ;logger.debug(format("i#{1} {2}:init tp={3} start", A_LineFile,A_LineNumber,tp))
         if (type <= 0) { ;用于在do之前先初始化一部分
             this.keySeq.keys := []
             VimD.HideTips1()
@@ -103,7 +103,7 @@ class VimDMode {
         if (keyMap == "{BackSpace}") {
             if (this.win.count > 9) { ;两位数
                 this.win.count := this.win.count // 10
-                VimD.logger.debug(format("i#{1} {2}:this.win.count={3}", A_LineFile, A_LineNumber, this.win.count))
+                logger.debug(format("i#{1} {2}:this.win.count={3}", A_LineFile, A_LineNumber, this.win.count))
             } else {
                 this.init()
                 return
@@ -116,14 +116,17 @@ class VimDMode {
 
     ;-----------------------------------maps-----------------------------------
 
+    EscapeCondition(thisHotkey) {
+        res := this.win.count == 0 && this.keySeq.keys.length == 0
+        logger.debug("EscapeCondition=" res)
+        return res
+    }
+
     MapDefault(opt) {
         if (this.index == 0) { ;mode0
             if (this.win.keyToMode1 != "") {
-                EscapeCondition(mode, thisHotkey) {
-                    return !(mode.win.count == 0 && mode.keySeq.keys.length == 0)
-                }
-                this.MapKey(this.win.keyToMode1, ObjBindMethod(this, "GlobalActionEscape"), "进入 mode1", EscapeCondition
-                .Bind(this))
+                this.MapKey(this.win.keyToMode1, ObjBindMethod(this, "GlobalActionEscape"), "进入 mode1", ObjBindMethod(
+                    this, "EscapeCondition"))
             }
         } else if (this.index == 1) { ;mode1
             ; this.MapKey("escape", ObjBindMethod(this, "GlobalActionEscape"), "escape")
@@ -259,14 +262,14 @@ class VimDMode {
 
     ;NOTE
     _ShowTip(str) {
-        ;VimD.logger.debug(format("i#{1} {2}:isobject={3} _ShowTip str={4}", A_LineFile,A_LineNumber,isobject(this.win.skipRepeat),str))
+        ;logger.debug(format("i#{1} {2}:isobject={3} _ShowTip str={4}", A_LineFile,A_LineNumber,isobject(this.win.skipRepeat),str))
         if (isobject(this.win.skipRepeat)) {
             cmToolTip := A_CoordModeToolTip
             CoordMode("ToolTip", "window") ;强制为 window 模式
             arrXY := this.win.skipRepeat.call()
-            ;VimD.logger.debug(format("i#{1} {2}:arrXY={3}", A_LineFile,A_LineNumber,json.stringify(arrXY)))
+            ;logger.debug(format("i#{1} {2}:arrXY={3}", A_LineFile,A_LineNumber,json.stringify(arrXY)))
             tooltip(str, arrXY[1], arrXY[2], VimD.tipLevel)
-            ;VimD.logger.debug(format("i#{1} {2}:after tooltip", A_LineFile,A_LineNumber))
+            ;logger.debug(format("i#{1} {2}:after tooltip", A_LineFile,A_LineNumber))
             CoordMode("ToolTip", cmToolTip)
         } else {
             MouseGetPos(&x, &y)
@@ -278,12 +281,12 @@ class VimDMode {
 
     Active() {
         if (this.win.curMode.name != this.name) {
-            VimD.logger.debug(Format("curMode {1} != {2}", this.win.curMode.name, this.name))
+            logger.debug(Format("curMode {1} != {2}", this.win.curMode.name, this.name))
             return false
         }
         if (this.onBeforeKey IS Func) {
             if (!this.onBeforeKey.call()) {
-                VimD.logger.debug("onBeforeKey condition failed")
+                logger.debug("onBeforeKey condition failed")
                 return false
             }
         }
@@ -291,15 +294,17 @@ class VimDMode {
     }
 
     HotIfCondition(thisHotkey, condition := ((p*) => true)) {
+        res := false
         if (this.win.Active() && this.Active()) {
             if (IsSet(condition) && condition IS Func) {
-                VimD.logger.debug(Format("{1},{2}", condition, thisHotkey))
-                return condition.Call(thisHotkey)
+                logger.debug(condition, thisHotkey)
+                res := condition.Call(thisHotkey)
             } else {
-                return true
+                res := true
             }
         }
-        return false
+        logger.debug("HotIfCondition=" res " for " thisHotkey)
+        return res
 
     }
 }

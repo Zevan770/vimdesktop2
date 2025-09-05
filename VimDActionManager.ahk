@@ -42,7 +42,7 @@ class VimDActionManager {
             this._Map(leaderKeys.ToString(), "", leaderKeys.ToString(), , "leader")
         }
 
-        ; VimD.logger.debug(Objs2Str(action))
+        ; logger.debug(Objs2Str(action))
 
         for key in action.keySeq.keys {
             if (!this.mode.win.registeredHotkeys.has(key)) { ;单键避免重复定义

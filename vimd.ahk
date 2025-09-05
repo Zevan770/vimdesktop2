@@ -1,4 +1,9 @@
-﻿class VimD {
+﻿#Requires AutoHotkey v2.0
+DllCall("AttachConsole", "UInt", -1)
+#SingleInstance force
+A_MaxHotkeysPerInterval := 1000
+
+class VimD {
     static arrModeName := ["None", "Vim"
     ]
     ;static charSplit := "※" ;分隔各命令
@@ -7,17 +12,20 @@
     static tipLevel := 15
     static tipLevel1 := 16 ;其他辅助显示
 
-    /** @type {Logger} */
-    static logger := Logger()
     /** @type {Map<String, VimDWindow>} */
     static wins := Map() ;在 initWin里设置
 
     static __New() {
         SetTitleMatchMode('Fast')
-        ; VimD.logger.debug(format("i#{1} {2}:{3}", A_LineFile, A_LineNumber, A_ThisFunc))
         ; this.logger.is_use_editor := true
-        ; this.logger.level := this.logger.level_trace
-        VimD.logger.setLogLevel(LogLevel.DEBUG)
+        ; this.logger.level := this.LogLevel.trace
+        logger.is_use_editor := true
+        logger.is_out_console := true
+        logger.is_out_file := false
+        logger.is_formate := false
+        logger.is_simple_path := true
+        logger.set_pattern("[%Y-%m-%d %H:%M:%S.%F] [%^%=8l%$] [%5!ius] %v")
+        logger.level := LogLevel.DEBUG
         ;HotIfWinActive ;TODO 关闭
     }
 
