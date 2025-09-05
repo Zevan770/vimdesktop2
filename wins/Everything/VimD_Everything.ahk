@@ -50,7 +50,7 @@ class vimd_Everything extends _ET {
         oET := _ET()
         for k, arr in oET.objAll {
             s := format("<super>{1}", k0, arr[1])
-            VimD.logger.debug(format("i#{1} {2}:{3} s={4}", A_LineFile, A_LineNumber, A_ThisFunc, s))
+            logger.debug(format("i#{1} {2}:{3} s={4}", A_LineFile, A_LineNumber, A_ThisFunc, s))
             if (oET.objConfig.has(k))
                 this.mode1.mapDynamic(format("<super>{1}{2}", k0, arr[1]), ObjBindMethod(oET, "deleteConfig", k), "删除-" .
                 arr[2])
@@ -184,7 +184,7 @@ class _ET {
         if (fnn ~= "^\d") ;数字开头不能当函数名
             fnn := "_" . fnn
         ;处理逻辑
-        ;VimD.logger.debug(format("i#{1} {2}:ProcessExist(exeName)={3}", A_LineFile,A_LineNumber,ProcessExist(exeName)))
+        ;logger.debug(format("i#{1} {2}:ProcessExist(exeName)={3}", A_LineFile,A_LineNumber,ProcessExist(exeName)))
         if (!ProcessExist(exeName)) {
             smartRun()
         } else if (WinActive(winTitle)) {
@@ -230,7 +230,7 @@ class _ET {
             SplitPath(fp, &fn, &dir)
             if (params != "")
                 fp := format("{1} {2}", fp, params)
-            VimD.logger.debug(format("i#{1} {2}:fp={3}", A_LineFile, A_LineNumber, fp))
+            logger.debug(format("i#{1} {2}:fp={3}", A_LineFile, A_LineNumber, fp))
             ;打开程序
             try
                 run(format('{1} /c {2}', A_ComSpec, fp), dir, "hide") ;run(fp, dir) ;TODO 尝试 <2023-04-22 23:31:11> hyaray
@@ -318,7 +318,7 @@ class _ET {
             exclude := this.exclude
         ;exclude := StrReplace(this.exclude, "!c:\windows\", "!c:\") ;不搜C:\的文档资料
         fps := this.search(filename, exclude)
-        VimD.logger.debug(format("i#{1} {2}:fps={3}", A_LineFile, A_LineNumber, json.stringify(fps, 4)))
+        logger.debug(format("i#{1} {2}:fps={3}", A_LineFile, A_LineNumber, json.stringify(fps, 4)))
         n := fps.length
         if (n) { ;有找到
             if (n >= 1) {
