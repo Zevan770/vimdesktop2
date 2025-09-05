@@ -42,7 +42,7 @@ class VimDMode {
     ;NOTE 执行命令或中途退出才执行
     ;type -1=执行前半段 0=全部执行 1=执行后半段
     init(type := 0) {
-        ;logger.debug(format("i#{1} {2}:init tp={3} start", A_LineFile,A_LineNumber,tp))
+        ;logger.debug("init tp=", tp, "start")
         if (type <= 0) { ;用于在do之前先初始化一部分
             this.keySeq.keys := []
             VimD.HideTips1()
@@ -103,7 +103,7 @@ class VimDMode {
         if (keyMap == "{BackSpace}") {
             if (this.win.count > 9) { ;两位数
                 this.win.count := this.win.count // 10
-                logger.debug(format("i#{1} {2}:this.win.count={3}", A_LineFile, A_LineNumber, this.win.count))
+                logger.debug("this.win.count=", this.win.count)
             } else {
                 this.init()
                 return
@@ -262,14 +262,14 @@ class VimDMode {
 
     ;NOTE
     _ShowTip(str) {
-        ;logger.debug(format("i#{1} {2}:isobject={3} _ShowTip str={4}", A_LineFile,A_LineNumber,isobject(this.win.skipRepeat),str))
+        ;logger.debug("isobject skipRepeat=", isobject(this.win.skipRepeat), "_ShowTip str=", str)
         if (isobject(this.win.skipRepeat)) {
             cmToolTip := A_CoordModeToolTip
             CoordMode("ToolTip", "window") ;强制为 window 模式
             arrXY := this.win.skipRepeat.call()
-            ;logger.debug(format("i#{1} {2}:arrXY={3}", A_LineFile,A_LineNumber,json.stringify(arrXY)))
+            ;logger.debug("arrXY=", json.stringify(arrXY))
             tooltip(str, arrXY[1], arrXY[2], VimD.tipLevel)
-            ;logger.debug(format("i#{1} {2}:after tooltip", A_LineFile,A_LineNumber))
+            ;logger.debug("after tooltip")
             CoordMode("ToolTip", cmToolTip)
         } else {
             MouseGetPos(&x, &y)
@@ -281,7 +281,7 @@ class VimDMode {
 
     Active() {
         if (this.win.curMode.name != this.name) {
-            logger.debug(Format("curMode {1} != {2}", this.win.curMode.name, this.name))
+            logger.debug("curMode!=", this.win.curMode.name, this.name)
             return false
         }
         if (this.onBeforeKey IS Func) {
@@ -303,7 +303,7 @@ class VimDMode {
                 res := true
             }
         }
-        logger.debug("HotIfCondition=" res " for " thisHotkey)
+        logger.debug("HotIfCondition=", res, "for", thisHotkey)
         return res
 
     }

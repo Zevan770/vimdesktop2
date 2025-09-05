@@ -116,11 +116,9 @@ class VimDWindow {
     ;byScript 非手工按键，而是用脚本触发时，需要传入此参数，如 VimD_WeChat.win.keyIn("F3", "ahk_exe WeChat.exe")
     keyIn(ThisHotkey, byScript := 0) {
 
-        ;logger.debug(format("i#{1} {2}:A_ThisFunc={3}-------------------start", A_LineFile,A_LineNumber,A_ThisFunc))
-        ;logger.debug(format("curMode.index={1}", this.curMode.index))
-        ;logger.debug(format("keySeq.length = {1}", this.curMode.keySeq.length))
-        ;logger.debug(format("keyMap={1}", keyMap))
-        ;logger.debug(format("i#{1} {2}:A_ThisFunc={3}-------------------end", A_LineFile,A_LineNumber,A_ThisFunc))
+        ;logger.debug("curMode.index=", this.curMode.index)
+        ;logger.debug("keySeq.length=", this.curMode.keySeq.length)
+        ;logger.debug("keyMap=", keyMap)
         ;NOTE 记录当前的窗口，用来出错后 init
         VimD.curWin := this
         this.curMode._keyIn(ThisHotkey, byScript)
@@ -132,7 +130,7 @@ class VimDWindow {
         if (WinActive(this.winTitle, , this.noWinTitle)) {
             return true
         } else {
-            logger.debug(format("winTitle={1}, noWinTitle={2} not active", this.winTitle, this.noWinTitle))
+            logger.debug("winTitle=", this.winTitle, "noWinTitle=", this.noWinTitle, "not active")
             return false
         }
     }

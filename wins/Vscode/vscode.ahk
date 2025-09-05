@@ -11,7 +11,7 @@ win.keyToMode1 := "F1"
 win.keyToMode0 := "F2"
 /** @type {VimDMode} */
 mode1 := win.initMode(1, , "normal", 3)
-mode1.MapKey("~e", ObjBindMethod(logger, "info", "typed e"), "msgbox")
+mode1.MapKey("~e ~e", ObjBindMethod(logger, "info", "typed e e"), "msgbox")
 mode1.onBeforeKey := (p*) => (
     WinActive("ahk_exe code.exe") ?
         mode1.BeforeKeyUIA()
