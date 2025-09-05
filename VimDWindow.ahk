@@ -127,12 +127,8 @@ class VimDWindow {
     }
 
     Active() {
-        if (WinActive(this.winTitle, , this.noWinTitle)) {
-            return true
-        } else {
-            logger.debug("winTitle=", this.winTitle, "noWinTitle=", this.noWinTitle, "not active")
-            return false
-        }
+        logger.trace("winTitle=", this.winTitle, "noWinTitle=", this.noWinTitle)
+        return WinActive(this.winTitle, , this.noWinTitle)
     }
 
 }

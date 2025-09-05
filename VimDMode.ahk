@@ -1,3 +1,4 @@
+#Requires AutoHotkey v2.0
 class VimDMode {
     /** @type {VimDWindow} */
     win := unset
@@ -26,6 +27,8 @@ class VimDMode {
     /** @type {String} */
     onAfterDo := ""
 
+    hotIfCondition := unset
+
     __new(idx, win, modename := "") {
         this.index := idx
         this.win := win ;标记是哪个窗口的mode
@@ -36,6 +39,7 @@ class VimDMode {
             VimD.arrModeName[this.index + 1] := modename
         this.name := this.win.name . "-" . VimD.arrModeName[this.index + 1]
         this.objTips.CaseSense := true
+        this.hotIfCondition := (p*) => this.win.Active() && this.Active()
     }
 
     ;脚本运行过程出错，要先运行此命令退出，否则下次按键会因为 keySeq 误判(往往使下一按键无效)
@@ -125,8 +129,8 @@ class VimDMode {
     MapDefault(opt) {
         if (this.index == 0) { ;mode0
             if (this.win.keyToMode1 != "") {
-                this.MapKey(this.win.keyToMode1, ObjBindMethod(this, "GlobalActionEscape"), "进入 mode1", ObjBindMethod(
-                    this, "EscapeCondition"))
+                ; 不再接受 key 级别 condition，使用模式的 Active/BeforeKey 等进行判断
+                this.MapKey(this.win.keyToMode1, ObjBindMethod(this, "GlobalActionEscape"), "进入 mode1")
             }
         } else if (this.index == 1) { ;mode1
             ; this.MapKey("escape", ObjBindMethod(this, "GlobalActionEscape"), "escape")
@@ -156,8 +160,9 @@ class VimDMode {
      * @param {String} desc
      * @param {Func} condition
      */
-    MapKey(lhs, rhs := unset, desc := unset, condition := (p*) => true) {
-        this.actionManager.MapKey(lhs, rhs, desc, condition)
+    MapKey(lhs, rhs := unset, desc := unset) {
+        ; key 级别 condition 已移除，condition 应由模式或窗口级别处理
+        this.actionManager.MapKey(lhs, rhs, desc)
     }
 
     ;-----------------------------------do__-----------------------------------
@@ -186,11 +191,9 @@ class VimDMode {
             rhs()
             return true
         }
-        try {
-            if (type(%rhs%).isFunc()) {
-                %rhs%()
-                return true
-            }
+        if (type(%rhs%).isFunc()) {
+            %rhs%()
+            return true
         }
         if !(rhs ~= "i)^[a-z]:[\\/]") {
             if (rhs ~= "^\w+\(\S*\)$") { ;运行function()
@@ -219,7 +222,7 @@ class VimDMode {
         if (errExit)
             exit
         else
-            throw OSError("action not find")
+            return false
     }
 
     GlobalActionEscape() {
@@ -280,8 +283,8 @@ class VimDMode {
     }
 
     Active() {
+        logger.debug("curMode=", this.win.curMode.name, "this.name=", this.name)
         if (this.win.curMode.name != this.name) {
-            logger.debug("curMode!=", this.win.curMode.name, this.name)
             return false
         }
         if (this.onBeforeKey IS Func) {
@@ -293,18 +296,4 @@ class VimDMode {
         return true
     }
 
-    HotIfCondition(thisHotkey, condition := ((p*) => true)) {
-        res := false
-        if (this.win.Active() && this.Active()) {
-            if (IsSet(condition) && condition IS Func) {
-                logger.debug(condition, thisHotkey)
-                res := condition.Call(thisHotkey)
-            } else {
-                res := true
-            }
-        }
-        logger.debug("HotIfCondition=", res, "for", thisHotkey)
-        return res
-
-    }
 }

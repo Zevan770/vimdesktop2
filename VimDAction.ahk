@@ -43,7 +43,7 @@ class VimDAction {
      * @description 条件
      * @type {Func}
      */
-    condition := ""
+    ; 已移除 key 级别的 condition 功能，条件现在由模式/窗口级别处理
 
     /**
      * @description 简短描述

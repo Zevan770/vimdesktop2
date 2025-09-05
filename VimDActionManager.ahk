@@ -20,7 +20,7 @@ class VimDActionManager {
     }
 
     MapKey(lhs, rhs := unset, desc := unset, condition := unset) {
-        this._Map(lhs, rhs?, desc?, condition?, "normal")
+        this._Map(lhs, rhs?, desc?, "", "normal")
     }
 
     _Map(lhs, rhs := "", desc := "", condition := "", type := "normal") {
@@ -34,7 +34,7 @@ class VimDActionManager {
         action.desc := IsSet(desc) ? desc : rhs
         action.type := type
         action.mode := this.mode
-        action.condition := condition
+        ; key 级别 condition 已移除，条件由模式或窗口级别处理
 
         leaderKeys := keySeq.GetLeaderKeys()
         ; 自动为 leaderKeys 定义一个空的 action
@@ -46,7 +46,8 @@ class VimDActionManager {
 
         for key in action.keySeq.keys {
             if (!this.mode.win.registeredHotkeys.has(key)) { ;单键避免重复定义
-                HotIf(ObjBindMethod(this.mode, "HotIfCondition", , condition?))
+                ; 不再为单键绑定 per-key condition，使用模式/窗口的 HotIf 判断
+                HotIf(this.mode.hotIfCondition)
                 Hotkey(key, ObjBindMethod(this.mode.win, "keyIn"))
                 this.mode.win.registeredHotkeys.Push(key)
             }
