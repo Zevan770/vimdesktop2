@@ -1,4 +1,5 @@
 ﻿; #include wins\Everything\VimD_Everything.ahk
+#Include wins\General\General.ahk
 #include wins\Vscode\vscode.ahk
 ; #include wins\Notepad\VimD_Notepad.ahk
 ; #include wins\WeChat\VimD_WeChat.ahk

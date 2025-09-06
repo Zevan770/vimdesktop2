@@ -34,15 +34,17 @@ class VimD {
      * 
      * @param winName 
      * @param winTitle 
+     * @param noWinTitle
      * @returns {VimDWindow}
      */
-    static InitWin(winName, winTitle) {
+    static InitWin(winName, winTitle, noWinTitle := "") {
         ;msgbox(winName . "`n" . json.stringify(this.wins, 4))
         if !this.wins.has(winName)
             this.wins[winName] := VimDWindow(winName)
         /** @type {VimDWindow} */
         win := this.wins[winName]
         win.winTitle := winTitle
+        win.noWinTitle := noWinTitle
         return win
     }
 
