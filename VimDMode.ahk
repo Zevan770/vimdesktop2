@@ -64,6 +64,8 @@ class VimDMode {
 
     ;NOTE 被keyIn调用
     _keyIn(thisHotkey, byScript) {
+        logger.debug("keyIn", thisHotkey, " in mode ", this.name)
+
         ;第一个按键
         if (this.handleSpecialKey(thisHotkey)) {
             exit

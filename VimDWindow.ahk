@@ -71,7 +71,7 @@ class VimDWindow {
      * NOTE 必须先 SetHotIf
      * @param opt 二进制0位代表mapRepeat, 1位代表mapCount
      */
-    InitMode(idx, onBeforeKey := false, modename := "", opt := 3) {
+    InitMode(idx, onBeforeKey := false, modename := "", opts := 3) {
         if (idx == 1 && this.arrModes.length == 0)
             this.InitMode(0)
         this.curMode := VimDMode(idx, this, modename) ;modename 用来修改内置模式名
@@ -80,7 +80,7 @@ class VimDWindow {
         else
             this.arrModes[idx + 1] := this.curMode
 
-        this.curMode.MapDefault(opt)
+        this.curMode.MapDefault(opts)
         if (onBeforeKey)
             this.curMode.onBeforeKey := isobject(onBeforeKey) ? onBeforeKey : ObjBindMethod(this.curMode,
                 "BeforeKey")
