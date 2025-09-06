@@ -40,7 +40,7 @@ class VimDMode {
             VimD.arrModeName[this.index + 1] := modename
         this.name := this.win.name . "-" . VimD.arrModeName[this.index + 1]
         this.objTips.CaseSense := true
-        this.hotIfCondition := (p*) => this.win.Active() && this.Active()
+        this.hotIfCondition := (p*) => this.win.Active() && this.Active() && this.checkKey(p*)
     }
 
     ;脚本运行过程出错，要先运行此命令退出，否则下次按键会因为 keySeq 误判(往往使下一按键无效)
@@ -67,14 +67,7 @@ class VimDMode {
             exit
         }
 
-        this.keySeq.AddKey(thisHotkey)
-
-        if (!this.actionManager.HasAction(this.keySeq.ToString())) {
-            this.init()
-            exit
-        }
-
-        this.tmpAction := this.actionManager.GetAction(this.keySeq.ToString())
+        this.tmpAction := this.actionManager.GetAction(this.keySeq)
         if (this.tmpAction.rhs != "") {
             this.Exec(this.tmpAction.rhs, this.win.GetCount(), this.tmpAction.desc)
             this.init()
@@ -162,8 +155,7 @@ class VimDMode {
      * @param {Func} condition
      */
     MapKey(lhs, rhs := unset, desc := unset) {
-        ; key 级别 condition 已移除，condition 应由模式或窗口级别处理
-        this.actionManager.MapKey(lhs, rhs, desc)
+        this._Map(lhs, rhs, desc)
     }
 
     ;-----------------------------------do__-----------------------------------
@@ -297,4 +289,45 @@ class VimDMode {
         return true
     }
 
+    checkKey(thisHotkey) {
+        this.keySeq.AddKey(thisHotkey)
+
+        if (!this.actionManager.HasAction(this.keySeq)) {
+            this.init()
+            return false
+        }
+        return true
+    }
+
+    _Map(lhs, rhs := "", desc := "") {
+        /** @type  {VimDKeySeqence} */
+        keySeq := lhs IS String ? VimDKeySeqence.Lhs2KeySeq(lhs) : lhs
+        /** @type {VimDAction} */
+        action := VimDAction()
+        action.keySeq := keySeq
+        action.rhs := rhs
+        action.type := rhs ? "normal" : "leader"
+        action.desc := IsSet(desc) ? desc : rhs
+        action.type := type
+        action.mode := this
+
+        leaderKeys := keySeq.GetLeaderKeys()
+        ; 自动为 leaderKeys 定义一个空的 action
+        if (!this.actionManager.HasAction(leaderKeys) && leaderKeys.keys.length) {
+            this._Map(leaderKeys, "",)
+        }
+
+        ; logger.debug(Objs2Str(action))
+
+        for key in action.keySeq.keys {
+            if (!this.actionManager.mode.win.registeredHotkeys.has(key)) { ;单键避免重复定义
+                ; 不再为单键绑定 per-key condition，使用模式/窗口的 HotIf 判断
+                HotIf(this.actionManager.mode.hotIfCondition)
+                Hotkey(key, ObjBindMethod(this.actionManager.mode.win, "keyIn"))
+                this.actionManager.mode.win.registeredHotkeys.Push(key)
+            }
+        }
+
+        this.actionManager.actions[keySeq.ToString()] := action
+    }
 }
