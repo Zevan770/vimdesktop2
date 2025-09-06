@@ -50,6 +50,8 @@ class VimDMode {
         ;logger.debug("init tp=", tp, "start")
         if (type <= 0) { ;用于在do之前先初始化一部分
             this.keySeq.keys := []
+            ; 清除提示
+            this._ShowTip("")
             VimD.HideTips1()
             VimD.HideTips()
         }
@@ -67,12 +69,24 @@ class VimDMode {
             exit
         }
 
+        ; 当按下 leader（即当前 keySeq 对应的 action 存在但为 leader 类型）时，显示后续可选按键
         this.tmpAction := this.actionManager.GetAction(this.keySeq)
+        if (this.tmpAction && this.tmpAction.type == "leader") {
+            ; 获取所有以当前 keySeq 为前缀的 actions
+            arrMatch := this.actionManager.GetActionsStartingWith(this.keySeq)
+            this.ShowTips(arrMatch)
+            return
+        }
+
         if (this.tmpAction.rhs != "") {
             this.Exec(this.tmpAction.rhs, this.win.GetCount(), this.tmpAction.desc)
             this.init()
         } else {
-            ; TODO showtips
+            ; 如果没有匹配的具体动作，尝试显示可能的后续映射
+            if (this.actionManager.HasAction(this.keySeq)) {
+                arrMatch := this.actionManager.GetActionsStartingWith(this.keySeq)
+                this.ShowTips(arrMatch)
+            }
         }
 
     }
@@ -244,28 +258,41 @@ class VimDMode {
     ;-----------------------------------tip-----------------------------------
 
     ShowTips(arrMatch) {
-        ; strTooltip := this.objTips.has(this.sKeySeq)
-        ;     ? format("{1}`t{2}", this.sKeySeq, this.objTips[this.sKeySeq])
-        ;     : this.sKeySeq
-        ; for s in this.arrDynamicTips
-        ;     strTooltip .= "`t" . s ;NOTE 添加动态信息
-        ; strTooltip .= "`n=====================`n"
-        ; key := VimD.groupStatus ? VimD.groupKeymap : "string"
-        ; for action in arrMatch
-        ;     strTooltip .= format("{1}`t{2}`n", RegExReplace(action[key], "\s|\{space\}", "☐"), action.desc) ;NOTE 空格需要转换
-        ; this._ShowTip(strTooltip)
+        if (!IsObject(arrMatch) || !arrMatch.length) {
+            this._ShowTip("")
+            return
+        }
+        ; 构建提示文本：显示 keySeq -> desc
+        s := ""
+        for action in arrMatch {
+            ; 显示下一键（去掉公共前缀）和描述
+            keyStr := action.keySeq.ToString()
+            ; 将空格显示为特殊符号
+            displayKey := RegExReplace(keyStr, "\\s|\\{space\\}", "☐")
+            ; 如果有 leader 前缀，去掉已按下的前缀部分以提示下一步
+            if (this.keySeq && this.keySeq.ToString() != "") {
+                pref := this.keySeq.ToString()
+                if (SubStr(displayKey, 1, StrLen(pref)) == pref)
+                    displayKey := SubStr(displayKey, StrLen(pref) + 1)
+            }
+            s .= format("{1}`t{2}`n", displayKey, action.desc ? action.desc : "")
+        }
+        this._ShowTip(s)
     }
 
     ;NOTE
     _ShowTip(str) {
-        ;logger.debug("isobject skipRepeat=", isobject(this.win.skipRepeat), "_ShowTip str=", str)
+        ; 如果传入空字符串，则清除 tooltip
+        if (!str) {
+            tooltip
+            return
+        }
+        ; 根据是否提供自定义位置显示 tooltip
         if (isobject(this.win.skipRepeat)) {
             cmToolTip := A_CoordModeToolTip
             CoordMode("ToolTip", "window") ;强制为 window 模式
             arrXY := this.win.skipRepeat.call()
-            ;logger.debug("arrXY=", json.stringify(arrXY))
             tooltip(str, arrXY[1], arrXY[2], VimD.tipLevel)
-            ;logger.debug("after tooltip")
             CoordMode("ToolTip", cmToolTip)
         } else {
             MouseGetPos(&x, &y)

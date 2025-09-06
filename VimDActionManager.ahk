@@ -24,4 +24,19 @@ class VimDActionManager {
         return this.actions[keySeq]
     }
 
+    /**
+     * 返回以指定 keySeq 前缀开始的 action 列表
+     * @param {VimDKeySeqence|String} prefix
+     * @returns {Array} 返回 action 对象数组
+     */
+    GetActionsStartingWith(prefix) {
+        if !(prefix IS String)
+            prefix := prefix.ToString()
+        arr := []
+        for k, v in this.actions {
+            if (SubStr(k, 1, StrLen(prefix)) == prefix)
+                arr.Push(v)
+        }
+        return arr
+    }
 }

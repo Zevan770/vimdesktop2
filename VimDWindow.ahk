@@ -44,6 +44,9 @@ class VimDWindow {
     /** @type {Integer} */
     lastCount := 0
 
+    /** @type {Boolean} */
+    skipRepeat := false
+
     ;事件属性
     /** @type {Function} */
     onBeforeChangeMode := ""
