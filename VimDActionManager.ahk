@@ -12,20 +12,25 @@ class VimDActionManager {
     }
 
     HasAction(keySeq) {
+        if !(keySeq IS String)
+            keySeq := keySeq.ToString()
         return this.actions.Has(keySeq)
+
     }
 
     GetAction(keySeq) {
-        return this.actions[keySeq]
+        if !(keySeq IS String)
+            keySeq := keySeq.ToString()
+        return this.actions.Has(keySeq)
     }
 
-    MapKey(lhs, rhs := unset, desc := unset, condition := unset) {
-        this._Map(lhs, rhs?, desc?, "", "normal")
+    MapKey(lhs, rhs := unset, desc := unset) {
+        this._Map(lhs, rhs?, desc?)
     }
 
-    _Map(lhs, rhs := "", desc := "", condition := "", type := "normal") {
+    _Map(lhs, rhs := "", desc := "") {
         /** @type  {VimDKeySeqence} */
-        keySeq := VimDKeySeqence.Lhs2KeySeq(lhs)
+        keySeq := lhs IS String ? VimDKeySeqence.Lhs2KeySeq(lhs) : lhs
         /** @type {VimDAction} */
         action := VimDAction()
         action.keySeq := keySeq
@@ -34,12 +39,11 @@ class VimDActionManager {
         action.desc := IsSet(desc) ? desc : rhs
         action.type := type
         action.mode := this.mode
-        ; key 级别 condition 已移除，条件由模式或窗口级别处理
 
         leaderKeys := keySeq.GetLeaderKeys()
         ; 自动为 leaderKeys 定义一个空的 action
-        if (!this.actions.has(leaderKeys.ToString()) && leaderKeys.keys.length) {
-            this._Map(leaderKeys.ToString(), "", leaderKeys.ToString(), , "leader")
+        if (!this.HasAction(leaderKeys) && leaderKeys.keys.length) {
+            this._Map(leaderKeys, "",)
         }
 
         ; logger.debug(Objs2Str(action))

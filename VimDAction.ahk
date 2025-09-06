@@ -9,10 +9,6 @@ class VimDAction {
     /**
      * @typedef {("normal"|"leader")} VimDActionType 映射类型
      */
-
-    /**
-     * @type {VimDActionType}
-     */
     type := "normal"
 
     /**

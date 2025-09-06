@@ -27,6 +27,7 @@ class VimDMode {
     /** @type {String} */
     onAfterDo := ""
 
+    /** @type {BoundFunc} */
     hotIfCondition := unset
 
     __new(idx, win, modename := "") {
