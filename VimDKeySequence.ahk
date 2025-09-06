@@ -40,6 +40,9 @@ class VimDKeySeqence {
         this.keys.push(key)
     }
 
+    /**
+     * @return 一个移除序列中的最后一个按键的新序列
+     */
     GetLeaderKeys() {
         if (this.keys.length == 0) {
             return VimDKeySeqence()
