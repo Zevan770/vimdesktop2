@@ -26,7 +26,6 @@ class VimD {
         logger.is_simple_path := true
         logger.set_pattern("[%Y-%m-%d %H:%M:%S.%F] [%^%=8l%$] [%5!ius] %v")
         logger.level := LogLevel.DEBUG
-        ;HotIfWinActive ;TODO 关闭
     }
 
     ;NOTE 核心，由各插件自行调用
