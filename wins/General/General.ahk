@@ -1,6 +1,6 @@
 RestartKanata() {
     ProcessClose("kanata-gui.exe")
-    Run("kanata-gui.exe --port 8613", , "Hide")
+    Run("kanata-gui.exe --port 4039 --nodelay", , "Hide")
 }
 
 RestartKanata()
