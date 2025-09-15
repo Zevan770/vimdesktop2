@@ -305,7 +305,7 @@ class VimDMode {
     }
 
     Active() {
-        logger.debug("curMode=", this.win.curMode.name, "this.name=", this.name)
+        logger.debug("curMode:checking =", this.win.curMode.name, ":", this.name)
         if (this.win.curMode.name != this.name) {
             return false
         }

@@ -4,8 +4,7 @@ DllCall("AttachConsole", "UInt", -1)
 A_MaxHotkeysPerInterval := 1000
 
 class VimD {
-    static arrModeName := ["None", "Vim"
-    ]
+    static arrModeName := ["None", "Vim"]
     ;static charSplit := "※" ;分隔各命令
     /** @type {VimDWindow} */
     static curWin := {} ;记录当前的窗口，用来出错后 init
@@ -17,15 +16,18 @@ class VimD {
 
     static __New() {
         SetTitleMatchMode('Fast')
-        ; this.logger.is_use_editor := true
-        ; this.logger.level := this.LogLevel.trace
+        this.InitLogger()
+    }
+
+    static InitLogger() {
         logger.is_use_editor := true
         logger.is_out_console := true
         logger.is_out_file := false
         logger.is_formate := false
         logger.is_simple_path := true
-        logger.set_pattern("[%Y-%m-%d %H:%M:%S.%F] [%^%=8l%$] [%5!ius] %v")
+        logger.set_pattern("[%Y-%m-%d %H:%M:%S.%F] [%=8l] [%5!ius] %^%v%$")
         logger.level := LogLevel.DEBUG
+        logger.critical("Logger initialized")
     }
 
     ;NOTE 核心，由各插件自行调用
