@@ -18,6 +18,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 _This repository uses pure AHK scripts. There are no standard build, test, or lint commands. Development involves editing `.ahk` files and running them with AutoHotkey v2._
 
 - **Main Entry**: `vimd.ahk` acts as the main entry point.
+- **Starting the Script**: `just` i.e. `AutoHotkey.exe vimd.ahk | Write-Host`, note that `Write-Host` is a must to collect console output correctly.
 
 ## Additional Notes
 
@@ -25,4 +26,3 @@ _This repository uses pure AHK scripts. There are no standard build, test, or li
 - No Copilot or Cursor rules are present.
 - No automated test or lint infrastructure detected. 
 
-For future development, maintain modularity by extending the class-based design and add scripts or documentation only as needed.

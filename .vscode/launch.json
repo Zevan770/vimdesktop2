@@ -5,11 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "ahk2",
-            "request": "launch",
-            "name": "AutoHotkey v2 Debugger",
-            "program": "${workspaceFolder}/VimD.ahk",
-            "stopOnEntry": true
+          "type": "node",
+          "request": "launch",
+          "name": "AutoHotkey v2 Debugger",
+          "program": "${workspaceFolder}/VimD.ahk",
+          "stopOnEntry": true
         }
     ]
 }
