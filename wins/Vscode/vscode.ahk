@@ -8,10 +8,10 @@ win := VimD.initWin("vscode", "ahk_group " TEST_GROUP)
 win.keyToMode1 := "F1"
 win.keyToMode0 := "F2"
 /** @type {VimDMode} */
-mode1 := win.initMode(1, , "normal", 3)
+mode0 := win.initMode(1, , "normal", 3)
 ; mode1.MapKey("- =", ObjBindMethod(logger, "info", "typed - ="), "msgbox")
-mode1.onBeforeKey := (p*) => (
+mode0.onBeforeKey := (p*) => (
     WinActive("ahk_exe code.exe") ?
-        mode1.BeforeKeyUIA()
-    : mode1.BeforeKey()
+        mode0.BeforeKeyUIA()
+    : mode0.BeforeKey()
 )
