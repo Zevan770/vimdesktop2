@@ -147,12 +147,14 @@ class VimDMode {
                 this.MapKey(this.win.keyToNormal, ObjBindMethod(this.win, "SwitchMode", 1), "进入 normal")
 
             n := 0 ;二进制的位数<super>(从右开始)
-            if ((opt & 2 ** n) >> n) ;也可以用 "10" 这种字符串来判断
+            if ((opt & 2 ** n) >> n)
                 this.MapCount()
             n++
             if ((opt & 2 ** n) >> n)
+            {
                 logger.info(this.name, " Mapping BS key")
-            this.MapKey(".", "", "重做")
+                this.MapKey(".", "", "重做")
+            }
         }
     }
 
