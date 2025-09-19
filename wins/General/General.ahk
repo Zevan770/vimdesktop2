@@ -19,9 +19,9 @@ VimDMode.Prototype.MapKomorebic := (this, key, args) => (
 
 ; {{{ komorebi
 
-mode := win.initMode(1, , "normal", 0)
+win.initMode(2, , "normal", 0)
+mode := win.SwitchMode(2)
 modeK := win.initMode(3, , "komorebi", 3)
-win.SwitchMode(2)
 ; 基础窗口移动
 mode.MapKomorebic("<!h", "focus left")
 mode.MapKomorebic("<!j", "focus down")
@@ -50,8 +50,8 @@ KomoAndTip(*) {
 mode.MapKey("<!w", KomoAndTip, "komoMode")
 
 ; komorebi模式下常用按键
-modeK.MapKey("esc", ObjBindMethod(win, "SwitchMode", 1), "normalMode")
-modeK.MapKey("space", ObjBindMethod(win, "SwitchMode", 1), "normalMode")
+modeK.MapKey("esc", ObjBindMethod(win, "SwitchMode", 2), "normalMode")
+modeK.MapKey("space", ObjBindMethod(win, "SwitchMode", 2), "normalMode")
 ; send/move to workspace
 modeK.MapKomorebic("^0", "move-to-workspace 9")
 modeK.MapKomorebic("^1", "move-to-workspace 0")

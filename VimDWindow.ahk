@@ -72,17 +72,20 @@ class VimDWindow {
      * @param opt 二进制0位代表mapRepeat, 1位代表mapCount
      */
     InitMode(idx, onBeforeKey := false, modename := "", opts := 3) {
-        if (idx == 1 && this.arrModes.length == 0)
-            this.InitMode(0)
+        if (idx == 2 && this.arrModes.length == 0)
+        {
+            this.InitMode(1)
+            this.SwitchMode(1)
+        }
         logger.info("InitMode ", idx, " in window ", this.name, " (", this.winTitle, ")")
-        this.curMode := VimDMode(idx, this, modename) ;modename 用来修改内置模式名
-        this.arrModes.push(this.curMode)
+        mode := VimDMode(idx, this, modename) ;modename 用来修改内置模式名
+        this.arrModes.push(mode)
 
-        this.curMode.MapDefault(opts)
+        mode.MapDefault(opts)
         if (onBeforeKey)
-            this.curMode.onBeforeKey := isobject(onBeforeKey) ? onBeforeKey : ObjBindMethod(this.curMode,
+            mode.onBeforeKey := isobject(onBeforeKey) ? onBeforeKey : ObjBindMethod(mode,
                 "BeforeKey")
-        return this.curMode
+        return mode
     }
 
     GetMode(i := unset) {
@@ -104,7 +107,7 @@ class VimDWindow {
     SwitchMode(i) {
         if (this.onBeforeChangeMode)
             this.onBeforeChangeMode.call(this.curMode)
-        logger.info("SwitchMode to ", this.GetMode(i).name, " in window ", this.name, " (", this.winTitle, ")")
+        logger.info("SwitchMode to ", this.GetMode(i).name, " in window ", this.name)
         tooltip(this.SetMode(i).name)
         SetTimer(tooltip, -1000)
         if (this.onAfterChangeMode) ;TODO 一般用来修改样式让用户清楚当前在哪个模式
