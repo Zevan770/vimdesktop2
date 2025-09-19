@@ -4,7 +4,6 @@ DllCall("AttachConsole", "UInt", -1)
 A_MaxHotkeysPerInterval := 1000
 
 class VimD {
-    static arrModeName := ["None", "Vim"]
     ;static charSplit := "※" ;分隔各命令
     /** @type {VimDWindow} */
     static curWin := {} ;记录当前的窗口，用来出错后 init
@@ -35,17 +34,17 @@ class VimD {
      * 
      * @param winName 
      * @param winTitle 
-     * @param noWinTitle
+     * @param excludeTitle
      * @returns {VimDWindow}
      */
-    static InitWin(winName, winTitle, noWinTitle := "") {
+    static InitWin(winName, winTitle := "", excludeTitle := "") {
         ;msgbox(winName . "`n" . json.stringify(this.wins, 4))
         if !this.wins.has(winName)
             this.wins[winName] := VimDWindow(winName)
         /** @type {VimDWindow} */
         win := this.wins[winName]
         win.winTitle := winTitle
-        win.noWinTitle := noWinTitle
+        win.excludeTitle := excludeTitle
         return win
     }
 

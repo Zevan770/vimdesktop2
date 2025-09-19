@@ -15,7 +15,7 @@ class VimD_Notepad {
         /**@type {VimDWindow} */
         this.win := vimd.initWin("Notepad", "ahk_exe Notepad.exe")
 
-        ;funCheckEscape 为了解决 mode0 时按 escape 优先处理原生功能，还是切换到 mode1
+        ;funCheckEscape 为了解决 normal 时按 escape 优先处理原生功能，还是切换到 mode1
         ;返回 true 则发送按键 escape
         ;如果无需定义 funCheckEscape，下行可省略
         this.win.initMode(0).funCheckEscape := ObjBindMethod(this, "beforeEscape")
@@ -64,7 +64,7 @@ class VimD_Notepad {
         ;this.win.setMode(0) ;是否默认 None 模式
     }
 
-    ;mode0 时按 escape
+    ;normal 时按 escape
     ;返回 true 则发送 escape 键，否则切换到 mode1
     static beforeEscape() {
         return false

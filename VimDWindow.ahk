@@ -9,7 +9,7 @@ class VimDWindow {
     winTitle := ""
 
     /** @type {String} */
-    noWinTitle := ""
+    excludeTitle := ""
 
     /**
      * 也可以理解为id 到 mode的映射
@@ -33,10 +33,10 @@ class VimDWindow {
     isRepeating := false
 
     /** @type {String} */
-    keyToMode0 := "f2"
+    keyToNormal := "f2"
 
     /** @type {String} */
-    keyToMode1 := "Escape"
+    keyToInsert := "Escape"
 
     /** @type {VimDAction} */
     lastAction := ""
@@ -65,7 +65,7 @@ class VimDWindow {
     }
 
     /**
-     * 初始化内置的模式(mode0|mode1)
+     * 初始化内置的模式
      * 此方法由各插件调用(生成+map一并进行)
      * 默认的模式放最后定义，或者最后加上 win.SwitchMode(i)
      * NOTE 必须先 SetHotIf
@@ -74,11 +74,9 @@ class VimDWindow {
     InitMode(idx, onBeforeKey := false, modename := "", opts := 3) {
         if (idx == 1 && this.arrModes.length == 0)
             this.InitMode(0)
+        logger.info("InitMode ", idx, " in window ", this.name, " (", this.winTitle, ")")
         this.curMode := VimDMode(idx, this, modename) ;modename 用来修改内置模式名
-        if (this.arrModes.length < idx + 1)
-            this.arrModes.push(this.curMode)
-        else
-            this.arrModes[idx + 1] := this.curMode
+        this.arrModes.push(this.curMode)
 
         this.curMode.MapDefault(opts)
         if (onBeforeKey)
@@ -91,7 +89,7 @@ class VimDWindow {
         if (!IsSet(i))
             return this.curMode
         else
-            return this.arrModes[i + 1]
+            return this.arrModes[i]
     }
 
     SetMode(i) => this.curMode := this.GetMode(i)
@@ -106,6 +104,7 @@ class VimDWindow {
     SwitchMode(i) {
         if (this.onBeforeChangeMode)
             this.onBeforeChangeMode.call(this.curMode)
+        logger.info("SwitchMode to ", this.GetMode(i).name, " in window ", this.name, " (", this.winTitle, ")")
         tooltip(this.SetMode(i).name)
         SetTimer(tooltip, -1000)
         if (this.onAfterChangeMode) ;TODO 一般用来修改样式让用户清楚当前在哪个模式
@@ -130,8 +129,11 @@ class VimDWindow {
     }
 
     Active() {
-        logger.trace("winTitle=", this.winTitle, "noWinTitle=", this.noWinTitle)
-        return WinActive(this.winTitle, , this.noWinTitle)
+        logger.trace("winTitle=", this.winTitle, "excludeTitle=", this.excludeTitle)
+        if (this.winTitle == "")
+            return true
+        else
+            return WinActive(this.winTitle, , this.excludeTitle)
     }
 
 }

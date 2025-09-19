@@ -8,9 +8,9 @@ win := VimD.initWin("vscode", "ahk_group " TEST_GROUP)
 win.keyToInsert := "F1"
 win.keyToNormal := "F2"
 /** @type {VimDMode} */
-mode0 := win.initMode(1, , "normal", 0)
-mode0.onBeforeKey := (p*) => (
+mode := win.initMode(1, , "normal", 0)
+mode.onBeforeKey := (p*) => (
     WinActive("ahk_exe code.exe") ?
-        mode0.BeforeKeyUIA()
-    : mode0.BeforeKey()
+        mode.BeforeKeyUIA()
+    : mode.BeforeKey()
 )

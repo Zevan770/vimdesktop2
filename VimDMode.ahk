@@ -30,15 +30,12 @@ class VimDMode {
     /** @type {BoundFunc} */
     hotIfCondition := unset
 
-    __new(idx, win, modename := "") {
+    __new(idx, win, name := "") {
         this.index := idx
         this.win := win ;标记是哪个窗口的mode
         this.actionManager := VimDActionManager(this) ; 初始化 actionManager
-        if (idx > 1)
-            VimD.arrModeName.push(modename != "" ? modename : format("mode{1}", idx))
-        else if (modename != "") ;修改内置模式名
-            VimD.arrModeName[this.index + 1] := modename
-        this.name := this.win.name . "-" . VimD.arrModeName[this.index + 1]
+        name = name != "" ? name : format("mode{1}", idx)
+        this.name := this.win.name . "-" . name
         this.objTips.CaseSense := true
         this.hotIfCondition := (p*) => this.win.Active() && this.Active() && this.checkKey(p*)
     }
@@ -137,28 +134,30 @@ class VimDMode {
     }
 
     MapDefault(opt) {
-        if (this.index == 0) { ;mode0
-            if (this.win.keyToMode1 != "") {
+        if (this.index == 1) {
+            if (this.win.keyToInsert != "") {
                 ; 不再接受 key 级别 condition，使用模式的 Active/BeforeKey 等进行判断
-                this.MapKey(this.win.keyToMode1, ObjBindMethod(this, "GlobalActionEscape"), "进入 mode1")
+                this.MapKey(this.win.keyToInsert, ObjBindMethod(this, "GlobalActionEscape"), "进入 insert")
             }
-        } else if (this.index == 1) { ;mode1
+        } else if (this.index == 2) {
             ; this.MapKey("escape", ObjBindMethod(this, "GlobalActionEscape"), "escape")
             ; this.MapKey("BackSpace", ObjBindMethod(this, "GlobalActionBS"), "BackSpace")
 
-            if (this.win.keyToMode0 != "")
-                this.MapKey(this.win.keyToMode0, ObjBindMethod(this.win, "SwitchMode", 0), "进入 mode0")
+            if (this.win.keyToNormal != "")
+                this.MapKey(this.win.keyToNormal, ObjBindMethod(this.win, "SwitchMode", 1), "进入 normal")
 
             n := 0 ;二进制的位数<super>(从右开始)
             if ((opt & 2 ** n) >> n) ;也可以用 "10" 这种字符串来判断
                 this.MapCount()
             n++
             if ((opt & 2 ** n) >> n)
-                this.MapKey(".", "", "重做")
+                logger.info(this.name, " Mapping BS key")
+            this.MapKey(".", "", "重做")
         }
     }
 
     MapCount() {
+        logger.debug(this.name, " Mapping count keys 0-9")
         loop (10)
             this.MapKey(string(A_Index - 1), "", format("<{1}>", A_Index - 1))
     }
@@ -236,7 +235,7 @@ class VimDMode {
 
     GlobalActionEscape() {
         if (this.index == 0) {
-            this.win.SwitchMode(1)
+            this.win.SwitchMode(2)
         } else {
             this.win.skipRepeat := true
         }
@@ -254,6 +253,8 @@ class VimDMode {
     }
     GlobalActionRepeat() {
         this.win.isRepeating := true
+        if (!IsObject(this.win.lastAction) || this.win.lastAction == "")
+            return
         this.Exec(this.win.lastAction.rhs, this.win.lastCount)
         this.win.isRepeating := false
     }
@@ -305,7 +306,7 @@ class VimDMode {
     }
 
     Active() {
-        logger.debug("curMode:checking =", this.win.curMode.name, ":", this.name)
+        logger.trace("curMode:checking =", this.win.curMode.name, ":", this.name)
         if (this.win.curMode.name != this.name) {
             return false
         }
@@ -329,6 +330,7 @@ class VimDMode {
     }
 
     _Map(lhs, rhs := "", desc := "") {
+        logger.info("Mapping key ", lhs, " to ", rhs, " in mode ", this.name)
         /** @type  {VimDKeySeqence} */
         keySeq := lhs IS String ? VimDKeySeqence.Lhs2KeySeq(lhs) : lhs
         /** @type {VimDAction} */
