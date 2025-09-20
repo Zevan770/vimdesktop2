@@ -135,16 +135,16 @@ class VimDMode {
 
     MapDefault(opt) {
         if (this.index == 1) {
-            if (this.win.keyToInsert != "") {
+            if (this.win.keyToNormal != "") {
                 ; 不再接受 key 级别 condition，使用模式的 Active/BeforeKey 等进行判断
-                this.MapKey(this.win.keyToInsert, ObjBindMethod(this, "GlobalActionEscape"), "进入 insert")
+                this.MapKey(this.win.keyToNormal, ObjBindMethod(this, "GlobalActionEscape"), "进入 normal")
             }
         } else if (this.index == 2) {
             ; this.MapKey("escape", ObjBindMethod(this, "GlobalActionEscape"), "escape")
             ; this.MapKey("BackSpace", ObjBindMethod(this, "GlobalActionBS"), "BackSpace")
 
-            if (this.win.keyToNormal != "")
-                this.MapKey(this.win.keyToNormal, ObjBindMethod(this.win, "SwitchMode", 1), "进入 normal")
+            if (this.win.keyToInsert != "")
+                this.MapKey(this.win.keyToInsert, ObjBindMethod(this.win, "SwitchMode", 1), "进入 insert")
 
             n := 0 ;二进制的位数<super>(从右开始)
             if ((opt & 2 ** n) >> n)

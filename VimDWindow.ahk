@@ -33,10 +33,10 @@ class VimDWindow {
     isRepeating := false
 
     /** @type {String} */
-    keyToNormal := "f2"
+    keyToInsert := "f2"
 
     /** @type {String} */
-    keyToInsert := "Escape"
+    keyToNormal := "Escape"
 
     /** @type {VimDAction} */
     lastAction := ""
@@ -105,6 +105,8 @@ class VimDWindow {
     ;由于会触发事件，所以不能在初始化时使用，很可能找不到窗口出错
     ;i 从0开始
     SwitchMode(i) {
+        if (this.curMode == i)
+            return this.curMode
         if (this.onBeforeChangeMode)
             this.onBeforeChangeMode.call(this.curMode)
         logger.info("SwitchMode to ", this.GetMode(i).name, " in window ", this.name)
