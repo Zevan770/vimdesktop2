@@ -17,8 +17,6 @@ win.keyToInsert := ""
 win.initMode(2, , "normal", 0)
 mode := win.SwitchMode(2)
 modeK := win.initMode(3, , "komorebi", 3)
-; 基础窗口移动
-
 
 VimDMode_Prototype_MapKomorebic(this, key, args, withQuit := true) {
     KomoRun() {
@@ -36,15 +34,16 @@ mode.MapKomorebic("<!k", "focus up")
 mode.MapKomorebic("<!l", "focus right")
 mode.MapKomorebic("<!p", "cycle-stack previous")
 mode.MapKomorebic("<!n", "cycle-stack next")
-modeK.MapKomorebic("<[", "cycle-workspace previous", false)
-modeK.MapKomorebic("<]", "cycle-workspace next", false)
+mode.MapKomorebic("<![", "cycle-workspace previous", false)
+mode.MapKomorebic("<!]", "cycle-workspace next", false)
+mode.MapKomorebic("<!t", "focus-last-workspace")
 
 ; resize
 mode.MapKomorebic("<!+h", "resize-axis horizontal decrease")
 mode.MapKomorebic("<!+j", "resize-axis vertical decrease")
 mode.MapKomorebic("<!+k", "resize-axis vertical increase")
 mode.MapKomorebic("<!+l", "resize-axis horizontal increase")
-; mode.MapKey("<!e", Reload, "reload")
+mode.MapKey("<!e r", Reload, "reload")
 ; 工作区切换
 loop 9
 {
@@ -81,8 +80,8 @@ modeK.MapKomorebic("s a", "stack-all")
 modeK.MapKomorebic("s q", "unstack-all")
 modeK.MapKomorebic("[", "cycle-workspace previous", false)
 modeK.MapKomorebic("]", "cycle-workspace next", false)
-modeK.MapKomorebic("^[", "cycle-move-to-workspace previous")
-modeK.MapKomorebic("^]", "cycle-move-to-workspace next")
+modeK.MapKomorebic("^[", "cycle-move-to-workspace previous", false)
+modeK.MapKomorebic("^]", "cycle-move-to-workspace next", false)
 
 ; 其它常用
 modeK.MapKomorebic("m", "cycle-stack previous", false)
@@ -100,6 +99,17 @@ modeK.MapKomorebic("k", "focus up", false)
 modeK.MapKomorebic("l", "focus right", false)
 modeK.MapKomorebic("q", "close", false)
 modeK.MapKomorebic("t", "focus-last-workspace")
+modeK.MapKomorebic("p", "cycle-stack previous", false)
+modeK.MapKomorebic("n", "cycle-stack next", false)
+modeK.MapKomorebic("+h", "resize-axis horizontal decrease", false)
+modeK.MapKomorebic("+j", "resize-axis vertical decrease", false)
+modeK.MapKomorebic("+k", "resize-axis vertical increase", false)
+modeK.MapKomorebic("+l", "resize-axis horizontal increase", false)
+modeK.MapKomorebic("^h", "move left", false)
+modeK.MapKomorebic("^j", "move down", false)
+modeK.MapKomorebic("^k", "move up", false)
+modeK.MapKomorebic("^l", "move right", false)
+
 ; modeK.MapKomorebic("]", "cycle-monitor next")
 ; modeK.MapKomorebic("^]", "cycle-move-to-monitor previous")
 ; }}}
