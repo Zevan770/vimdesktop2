@@ -1,24 +1,35 @@
+#Include <ToggleDarkTheme>
+
 RestartKanata() {
-    ProcessClose("kanata-gui.exe")
+    if (ProcessExist("kanata-gui.exe")) {
+        ProcessClose("kanata-gui.exe")
+    }
     Run("kanata-gui.exe --port 4039 --nodelay", , "Hide")
 }
 
+RestartWinVind() {
+    if (ProcessExist("win-vind.exe")) {
+        ProcessClose("win-vind.exe")
+    }
+}
+
+RestartWinVind()
 RestartKanata()
 
 
 win := VimD.initWin("General", "")
 win.keyToNormal := ""
 win.keyToInsert := ""
-/** @type {VimDMode} */
 
 
-; {{{ komorebi
+; #region komorebi
 
 win.initMode(2, , "normal", 0)
+/** @type {VimDMode} */
 mode := win.SwitchMode(2)
 modeK := win.initMode(3, , "komorebi", 3)
 
-VimDMode_Prototype_MapKomorebic(this, key, args, withQuit := true) {
+VimDMode_MapKomorebic(this, key, args, withQuit := true) {
     KomoRun() {
         Run("Komorebic.exe " args, , "Hide")
         if (withQuit)
@@ -26,7 +37,17 @@ VimDMode_Prototype_MapKomorebic(this, key, args, withQuit := true) {
     }
     this.MapKey(key, KomoRun, "Komo" args)
 }
-VimDMode.Prototype.MapKomorebic := VimDMode_Prototype_MapKomorebic
+VimDMode.Prototype.MapKomorebic := VimDMode_MapKomorebic
+
+VimDMode_MapWinVind(this, key, args) {
+    WinVindRun() {
+        Run("win-vind -c " args, , "Hide")
+    }
+    this.MapKey(key, WinVindRun, "WinVind" args)
+}
+VimDMode.Prototype.MapWinVind := VimDMode_MapWinVind
+
+mode.MapWinVind("<!f", "<easyclick><click_left>")
 
 mode.MapKomorebic("<!h", "focus left")
 mode.MapKomorebic("<!j", "focus down")
@@ -44,6 +65,7 @@ mode.MapKomorebic("<!+j", "resize-axis vertical decrease")
 mode.MapKomorebic("<!+k", "resize-axis vertical increase")
 mode.MapKomorebic("<!+l", "resize-axis horizontal increase")
 mode.MapKey("<!e r", Reload, "reload")
+mode.MapKey("<!e t", ToggleSystemTheme, "toggle-theme")
 ; 工作区切换
 loop 9
 {
@@ -89,10 +111,12 @@ modeK.MapKomorebic(",", "cycle-stack next", false)
 modeK.MapKomorebic("; p", "toggle-pause")
 modeK.MapKomorebic("; g", "gui")
 modeK.MapKomorebic("; x", "stop")
-modeK.MapKomorebic("; n", "cycle-layout next")
-modeK.MapKomorebic("; p", "cycle-layout previous")
+modeK.MapKomorebic("; n", "cycle-layout next", false)
+modeK.MapKomorebic("; p", "cycle-layout previous", false)
 modeK.MapKomorebic("c", "minimize")
-modeK.MapKomorebic("z", "toggle-monocle", false)
+; 最大化/浮动/忽略
+modeK.MapKomorebic("z", "toggle-maximize")
+modeK.MapKomorebic("a", "toggle-float")
 modeK.MapKomorebic("h", "focus left", false)
 modeK.MapKomorebic("j", "focus down", false)
 modeK.MapKomorebic("k", "focus up", false)
@@ -112,4 +136,4 @@ modeK.MapKomorebic("^l", "move right", false)
 
 ; modeK.MapKomorebic("]", "cycle-monitor next")
 ; modeK.MapKomorebic("^]", "cycle-move-to-monitor previous")
-; }}}
+; #endregion
