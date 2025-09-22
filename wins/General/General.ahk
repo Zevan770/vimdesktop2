@@ -32,21 +32,21 @@ VimDMode_MapKomorebic(this, key, args, withQuit := true) {
 VimDMode.Prototype.MapKomorebic := VimDMode_MapKomorebic
 
 ; #region win-vind
-RestartWinVind() {
-    if (ProcessExist("win-vind.exe")) {
-        ProcessClose("win-vind.exe")
-    }
-}
+; RestartWinVind() {
+;     if (ProcessExist("win-vind.exe")) {
+;         ProcessClose("win-vind.exe")
+;     }
+; }
 
-RestartWinVind()
-VimDMode_MapWinVind(this, key, args) {
-    WinVindRun() {
-        Run("win-vind -c " args, , "Hide")
-    }
-    this.MapKey(key, WinVindRun, "WinVind" args)
-}
-VimDMode.Prototype.MapWinVind := VimDMode_MapWinVind
-mode.MapWinVind("<!f", "<easyclick><click_left>")
+; RestartWinVind()
+; VimDMode_MapWinVind(this, key, args) {
+;     WinVindRun() {
+;         Run("win-vind -c " args, , "Hide")
+;     }
+;     this.MapKey(key, WinVindRun, "WinVind" args)
+; }
+; VimDMode.Prototype.MapWinVind := VimDMode_MapWinVind
+; mode.MapWinVind("<!f", "<easyclick><click_left>")
 ; #endregion
 
 
