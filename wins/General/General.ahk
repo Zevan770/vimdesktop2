@@ -6,14 +6,6 @@ RestartKanata() {
     }
     Run("kanata-gui.exe --port 4039 --nodelay", , "Hide")
 }
-
-RestartWinVind() {
-    if (ProcessExist("win-vind.exe")) {
-        ProcessClose("win-vind.exe")
-    }
-}
-
-RestartWinVind()
 RestartKanata()
 
 
@@ -39,6 +31,14 @@ VimDMode_MapKomorebic(this, key, args, withQuit := true) {
 }
 VimDMode.Prototype.MapKomorebic := VimDMode_MapKomorebic
 
+; #region win-vind
+RestartWinVind() {
+    if (ProcessExist("win-vind.exe")) {
+        ProcessClose("win-vind.exe")
+    }
+}
+
+RestartWinVind()
 VimDMode_MapWinVind(this, key, args) {
     WinVindRun() {
         Run("win-vind -c " args, , "Hide")
@@ -46,8 +46,9 @@ VimDMode_MapWinVind(this, key, args) {
     this.MapKey(key, WinVindRun, "WinVind" args)
 }
 VimDMode.Prototype.MapWinVind := VimDMode_MapWinVind
-
 mode.MapWinVind("<!f", "<easyclick><click_left>")
+; #endregion
+
 
 mode.MapKomorebic("<!h", "focus left")
 mode.MapKomorebic("<!j", "focus down")
