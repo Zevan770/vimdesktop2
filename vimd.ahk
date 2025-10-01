@@ -22,18 +22,16 @@ class VimD {
         logger.is_use_editor := true
         logger.is_out_console := true
         logger.is_out_file := false
-        logger.is_formate := false
-        logger.is_simple_path := true
         logger.set_pattern("[%Y-%m-%d %H:%M:%S.%F] [%=8l] [%5!ius] %^%v%$")
         logger.level := LogLevel.DEBUG
-        logger.critical("Logger initialized")
+        logger.info("Logger initialized")
     }
 
     ;NOTE 核心，由各插件自行调用
     /**
-     * 
-     * @param winName 
-     * @param winTitle 
+     *
+     * @param winName
+     * @param winTitle
      * @param excludeTitle
      * @returns {VimDWindow}
      */

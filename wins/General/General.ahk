@@ -1,5 +1,6 @@
 #Include <ToggleDarkTheme>
 logger.level := LogLevel.INFO
+logger.is_out_console := false
 
 RestartKanata() {
     if (ProcessExist("kanata-gui.exe")) {
