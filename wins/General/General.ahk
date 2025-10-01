@@ -1,4 +1,5 @@
 #Include <ToggleDarkTheme>
+logger.level := LogLevel.INFO
 
 RestartKanata() {
     if (ProcessExist("kanata-gui.exe")) {
@@ -98,7 +99,7 @@ modeK.MapKomorebic("s h", "stack left", false)
 modeK.MapKomorebic("s j", "stack down", false)
 modeK.MapKomorebic("s k", "stack up", false)
 modeK.MapKomorebic("s l", "stack right", false)
-modeK.MapKomorebic("s u", "unstack")
+modeK.MapKomorebic("s u", "unstack", false)
 modeK.MapKomorebic("s a", "stack-all")
 modeK.MapKomorebic("s q", "unstack-all")
 modeK.MapKomorebic("[", "cycle-workspace previous", false)
