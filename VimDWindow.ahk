@@ -13,7 +13,7 @@ class VimDWindow {
 
     /**
      * 也可以理解为id 到 mode的映射
-     * @type {Array<VimDMode>} 
+     * @type {Array<VimDMode>}
      */
     arrModes := []
 
@@ -105,7 +105,7 @@ class VimDWindow {
     ;由于会触发事件，所以不能在初始化时使用，很可能找不到窗口出错
     ;i 从0开始
     SwitchMode(i) {
-        if (this.curMode == i)
+        if (this.curMode != "" and this.curMode.index == i)
             return this.curMode
         if (this.onBeforeChangeMode)
             this.onBeforeChangeMode.call(this.curMode)

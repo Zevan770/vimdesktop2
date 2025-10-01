@@ -7,7 +7,7 @@ class VimDMode {
     actionManager := ""
 
     /** @type {VimDAction} */
-    tmpAction := ""
+    curAction := ""
 
     /** @type {Map<String, String>} */
     objTips := Map()
@@ -69,16 +69,16 @@ class VimDMode {
         }
 
         ; 当按下 leader（即当前 keySeq 对应的 action 存在但为 leader 类型）时，显示后续可选按键
-        this.tmpAction := this.actionManager.GetAction(this.keySeq)
-        if (this.tmpAction && this.tmpAction.type == "leader") {
+        this.curAction := this.actionManager.GetAction(this.keySeq)
+        if (this.curAction && this.curAction.type == "leader") {
             ; 获取所有以当前 keySeq 为前缀的 actions
             arrMatch := this.actionManager.GetActionsStartingWith(this.keySeq)
             this.ShowTips(arrMatch)
             return
         }
 
-        if (this.tmpAction.rhs != "") {
-            this.Exec(this.tmpAction.rhs, this.win.GetCount(), this.tmpAction.desc)
+        if (this.curAction.rhs != "") {
+            this.Exec(this.curAction.rhs, this.win.GetCount(), this.curAction.desc)
             this.init()
         } else {
             ; 如果没有匹配的具体动作，尝试显示可能的后续映射
@@ -184,7 +184,7 @@ class VimDMode {
     Exec(rhs, count, comment := "") {
         ;处理 repeat 和 count
         if (!this.win.isRepeating) {
-            this.win.lastAction := this.tmpAction
+            this.win.lastAction := this.curAction
             this.win.lastCount := count
             ; TODO history
         }
