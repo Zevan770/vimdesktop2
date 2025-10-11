@@ -15,6 +15,12 @@ class VimDMode {
     /** @type {VimDKeySeqence} */
     keySeq := VimDKeySeqence()
 
+    /** @type {Integer} */
+    count := false
+
+    /** @type {Integer} */
+    escape := false
+
     /** @type {Func} */
     onBeforeKey := ""
 
@@ -94,7 +100,7 @@ class VimDMode {
         if (!this.actionManager.HasAction(thisHotkey)) {
             return false
         }
-        if (thisHotkey ~= "^\d$") {
+        if (thisHotkey ~= "^\d$" && this.count) {
             this.HandleCount(integer(thisHotkey)) ;因为要传入参数，所以单独处理
             return true
         } else if (thisHotkey == "{BackSpace}") {
@@ -147,11 +153,12 @@ class VimDMode {
                 this.MapKey(this.win.keyToInsert, ObjBindMethod(this.win, "SwitchMode", 1), "进入 insert")
 
             n := 0 ;二进制的位数<super>(从右开始)
-            if ((opt & 2 ** n) >> n)
+            if ((opt & 2 ** n) >> n) {
+                this.count := true
                 this.MapCount()
+            }
             n++
-            if ((opt & 2 ** n) >> n)
-            {
+            if ((opt & 2 ** n) >> n) {
                 logger.info(this.name, " Mapping BS key")
                 this.MapKey(".", "", "重做")
             }
@@ -350,15 +357,10 @@ class VimDMode {
             this._Map(leaderKeys, "",)
         }
 
-        ; logger.debug(Objs2Str(action))
-
         for key in action.keySeq.keys {
-            if (!this.actionManager.mode.win.registeredHotkeys.has(key)) { ;单键避免重复定义
-                ; 不再为单键绑定 per-key condition，使用模式/窗口的 HotIf 判断
-                HotIf(this.actionManager.mode.hotIfCondition)
-                Hotkey(key, ObjBindMethod(this.actionManager.mode.win, "keyIn"))
-                this.actionManager.mode.win.registeredHotkeys.Push(key)
-            }
+            logger.debug("Mapping hotkey ", key, " to mode ", this.name)
+            HotIf(this.actionManager.mode.hotIfCondition)
+            Hotkey(key, ObjBindMethod(this.actionManager.mode.win, "keyIn"))
         }
 
         this.actionManager.actions[keySeq.ToString()] := action
