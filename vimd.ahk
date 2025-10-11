@@ -1,7 +1,22 @@
 ﻿#Requires AutoHotkey v2.0
-DllCall("AttachConsole", "UInt", -1)
-#SingleInstance force
-A_MaxHotkeysPerInterval := 1000
+; DllCall("AttachConsole", "UInt", -1)
+#SingleInstance Force
+#UseHook true
+
+; #WinActivateForce   ; 先关了遇到相关问题再打开试试
+InstallKeybdHook    ; 这个可以重装 keyboard hook, 提高自己的 hook 优先级, 以后可能会用到
+ListLines False     ; 也许能提升一点点性能 ( 别抱期待 ), 当有这个需求时再打开试试
+; #Warn All, Off      ; 也许能提升一点点性能 ( 别抱期待 ), 当有这个需求时再打开试试
+
+DllCall("SetThreadDpiAwarenessContext", "ptr", -3, "ptr") ; 多显示器不同缩放比例会导致问题: https://www.autohotkey.com/boards/viewtopic.php?f=14&t=13810
+SetMouseDelay 0                                           ; SendInput 可能会降级为 SendEvent, 此时会有 10ms 的默认 delay
+SetWinDelay 0                                             ; 默认会在 activate, maximize, move 等窗口操作后睡眠 100ms
+A_MaxHotkeysPerInterval := 256                            ; 默认 70 可能有点低, 即使没有热键死循环也触发警告
+SendMode "Event"                                          ; 执行 SendInput 的期间会短暂卸载 Hook, 这时候松开引导键会丢失 up 事件, 所以 Event 模式更适合 MyKeymap
+SetKeyDelay 0                                             ; 默认 10 太慢了, https://www.reddit.com/r/AutoHotkey/comments/gd3z4o/possible_unreliable_detection_of_the_keyup_event/
+SetTitleMatchMode('Fast')
+ProcessSetPriority "High"
+FileEncoding("UTF-8")
 
 class VimD {
     ;static charSplit := "※" ;分隔各命令
@@ -14,7 +29,6 @@ class VimD {
     static wins := Map() ;在 initWin里设置
 
     static __New() {
-        SetTitleMatchMode('Fast')
         this.InitLogger()
     }
 
