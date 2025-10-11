@@ -1,6 +1,8 @@
 #Include <ToggleDarkTheme>
+
 logger.level := LogLevel.INFO
 logger.is_out_console := false
+logger.is_out_file := true
 
 RestartKanata() {
     if (ProcessExist("kanata-gui.exe")) {
@@ -10,22 +12,20 @@ RestartKanata() {
 }
 RestartKanata()
 
-
 win := VimD.initWin("General", "")
 win.keyToNormal := ""
 win.keyToInsert := ""
 
-
 ; #region komorebi
 
-win.initMode(2, , "normal", 0)
+mode := win.initMode(2, , "normal", 0)
 /** @type {VimDMode} */
-mode := win.SwitchMode(2)
-modeK := win.initMode(3, , "komorebi", 3)
+win.SwitchMode(2)
+modeK := win.initMode(3, , "komorebi", 0)
 
 VimDMode_MapKomorebic(this, key, args, withQuit := true) {
     KomoRun() {
-        Run("Komorebic.exe " args, , "Hide")
+        Run("komorebic.exe " args, , "Hide")
         if (withQuit)
             win.SwitchMode(2)
     }
@@ -51,28 +51,47 @@ VimDMode.Prototype.MapKomorebic := VimDMode_MapKomorebic
 ; mode.MapWinVind("<!f", "<easyclick><click_left>")
 ; #endregion
 
-
 mode.MapKomorebic("<!h", "focus left")
 mode.MapKomorebic("<!j", "focus down")
 mode.MapKomorebic("<!k", "focus up")
 mode.MapKomorebic("<!l", "focus right")
-mode.MapKomorebic("<!p", "cycle-stack previous")
-mode.MapKomorebic("<!n", "cycle-stack next")
-mode.MapKomorebic("<![", "cycle-workspace previous", false)
-mode.MapKomorebic("<!]", "cycle-workspace next", false)
+mode.MapKomorebic("<![", "cycle-stack previous")
+mode.MapKomorebic("<!]", "cycle-stack next")
+mode.MapKomorebic("<!p", "cycle-workspace previous")
+mode.MapKomorebic("<!n", "cycle-workspace next")
 mode.MapKomorebic("<!t", "focus-last-workspace")
+mode.MapKomorebic("<!q", "close")
+mode.MapKomorebic("<!c", "minimize")
 
-; resize
+mode.MapKey("<!e g", WinToggleTopAndTransparent, "toggle-always-on-top")
+mode.MapKomorebic("<!e a", "session-float-rule")
+
+mode.MapKomorebic("<!WheelUp", "cycle-workspace previous", false)
+mode.MapKomorebic("<!WheelDown", "cycle-workspace next", false)
+mode.MapKomorebic("<!^WheelUp", "cycle-move-to-workspace previous", false)
+mode.MapKomorebic("<!^WheelDown", "cycle-move-to-workspace next", false)
+
+WinToggleTopAndTransparent() {
+    WinSetTransparent(WinGetAlwaysOnTop("A") ? 255 : 198, "A")
+    WinSetAlwaysOnTop(-1, "A")
+}
+
+; resize move
+mode.MapKomorebic("<!^h", "move left")
+mode.MapKomorebic("<!^j", "move down")
+mode.MapKomorebic("<!^k", "move up")
+mode.MapKomorebic("<!^l", "move right")
 mode.MapKomorebic("<!+h", "resize-axis horizontal decrease")
 mode.MapKomorebic("<!+j", "resize-axis vertical decrease")
 mode.MapKomorebic("<!+k", "resize-axis vertical increase")
 mode.MapKomorebic("<!+l", "resize-axis horizontal increase")
+
 mode.MapKey("<!e r", Reload, "reload")
 mode.MapKey("<!e t", ToggleSystemTheme, "toggle-theme")
 ; 工作区切换
-loop 9
-{
-    mode.MapKomorebic("Numpad" A_Index, "focus-workspace " A_Index - 1)
+loop 9 {
+    mode.MapKomorebic("<!" A_Index, "focus-workspace " A_Index - 1)
+    mode.MapKomorebic("<!^" A_Index, "move-to-workspace " A_Index - 1)
 }
 
 ; 最大化/浮动/忽略
@@ -90,27 +109,32 @@ mode.MapKey("<!w", KomoAndTip, "komoMode")
 modeK.MapKey("esc", ObjBindMethod(win, "SwitchMode", 2), "normalMode")
 modeK.MapKey("space", ObjBindMethod(win, "SwitchMode", 2), "normalMode")
 ; send/move to workspace
-loop 9
-{
-    modeK.MapKomorebic("Numpad" A_Index, "focus-workspace " A_Index - 1)
-    modeK.MapKomorebic("^Numpad" A_Index, "move-to-workspace " A_Index - 1)
-    modeK.MapKomorebic("s " A_Index, "send-to-workspace " A_Index - 1)
+loop 9 {
+    modeK.MapKomorebic(String(A_Index), "focus-workspace " A_Index - 1, false)
+    modeK.MapKomorebic("^" A_Index, "move-to-workspace " A_Index - 1, false)
+    modeK.MapKomorebic("s " A_Index, "send-to-workspace " A_Index - 1, false)
 }
 modeK.MapKomorebic("s h", "stack left", false)
 modeK.MapKomorebic("s j", "stack down", false)
 modeK.MapKomorebic("s k", "stack up", false)
 modeK.MapKomorebic("s l", "stack right", false)
-modeK.MapKomorebic("s u", "unstack", false)
 modeK.MapKomorebic("s a", "stack-all")
 modeK.MapKomorebic("s q", "unstack-all")
+modeK.MapKomorebic("u", "unstack", false)
 modeK.MapKomorebic("[", "cycle-workspace previous", false)
 modeK.MapKomorebic("]", "cycle-workspace next", false)
 modeK.MapKomorebic("^[", "cycle-move-to-workspace previous", false)
 modeK.MapKomorebic("^]", "cycle-move-to-workspace next", false)
 
+RestartKomorebi() {
+    Run("cmd /C komorebic.exe stop && komorebic start", , "Hide")
+}
+modeK.MapKey("r", RestartKomorebi, "restart")
+
 ; 其它常用
 modeK.MapKomorebic("m", "cycle-stack previous", false)
 modeK.MapKomorebic(",", "cycle-stack next", false)
+
 modeK.MapKomorebic("; p", "toggle-pause")
 modeK.MapKomorebic("; g", "gui")
 modeK.MapKomorebic("; x", "stop")
