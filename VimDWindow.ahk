@@ -20,9 +20,6 @@ class VimDWindow {
     /** @type {VimDMode} */
     curMode := ""
 
-    /** @type {Array} */
-    registeredHotkeys := []
-
     /** @type {Integer} */
     count := 0
 
@@ -72,8 +69,7 @@ class VimDWindow {
      * @param opt 二进制0位代表mapRepeat, 1位代表mapCount
      */
     InitMode(idx, onBeforeKey := false, modename := "", opts := 3) {
-        if (idx == 2 && this.arrModes.length == 0)
-        {
+        if (idx == 2 && this.arrModes.length == 0) {
             this.InitMode(1)
             this.SwitchMode(1)
         }
