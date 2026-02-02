@@ -12,6 +12,7 @@ Class WinPlay {
         win.SwitchMode(2)
 
         mode.MapKey("3", Send.Bind("{LButton Down}"), "")
+        mode.MapKey("^+3", Send.Bind("3"), "")
     }
 }
 

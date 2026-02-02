@@ -179,7 +179,7 @@ class VimDMode {
      * @param {Func} condition
      */
     MapKey(lhs, rhs := unset, desc := unset) {
-        this._Map(lhs, rhs, desc)
+        this._Map(lhs, rhs, desc?)
     }
 
     ;-----------------------------------do__-----------------------------------
