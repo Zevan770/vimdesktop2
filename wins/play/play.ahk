@@ -11,8 +11,10 @@ Class WinPlay {
         mode := win.initMode(2, , "normal", 0)
         win.SwitchMode(2)
 
-        mode.MapKey("3", Send.Bind("{LButton Down}"), "")
-        mode.MapKey("^+3", Send.Bind("3"), "")
+        ; mode.MapKey("3", Send.Bind("{LButton Down}"), "")
+        ; mode.MapKey("tab", Send.Bind("{LButton Down}"), "")
+        ; mode.MapKey("", Send.Bind("{LButton Down}"), "")
+        ; mode.MapKey("^+3", Send.Bind("3"), "")
     }
 }
 
